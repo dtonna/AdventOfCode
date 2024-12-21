@@ -76,6 +76,7 @@ Once again consider your left and right lists. What is their similarity score?
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <chrono>
 
 static void printSummation(const int& summation, const std::string& msg)
 {
@@ -84,7 +85,7 @@ static void printSummation(const int& summation, const std::string& msg)
 
 static int distance(const int& a, const int& b)
 {
-	if (a >= b)
+	if (a > b)
 	{
 		return a - b;
 	}
@@ -93,33 +94,53 @@ static int distance(const int& a, const int& b)
 
 static int findSimilarity(const int& number, const std::vector<int>& right)
 {
+	// use upper_bound use time ~1.6762 ms 
 	// Use upper_bound to find the first element greater than the number
 	auto upper = std::upper_bound(right.begin(), right.end(), number);
 
 	// Count the occurrences of the number
 	int similarity = std::count(right.begin(), upper, number);
 
+	// The below code is the same as the above code
+	
+
+	// use for loop use time ~7.0021 ms
+	/*int similarity = 0;
+	for (int j = 0; j < right.size(); j++)
+	{
+		if (number == right[j])
+		{
+			similarity++;
+		}
+		else if (number < right[j])
+		{
+			return similarity;
+		}
+	}*/
+
 	return similarity;
 }
 
-static void printSumOfDistances(const std::vector<int>& left, const std::vector<int>& right)
+static int sumOfDistances(const std::vector<int>& left, const std::vector<int>& right)
 {
 	int distances = 0;
 	for (int i = 0; i < left.size(); i++)
 	{
 		distances += distance(left[i], right[i]);
 	}
-	printSummation(distances, "The total distance is");
+	
+	return distances;
 }
 
-static void printSimilaryityScore(const std::vector<int>& left, const std::vector<int>& right)
+static int similaryityScore(const std::vector<int>& left, const std::vector<int>& right)
 {
 	int similarityScore = 0;
 	for (int i = 0; i < left.size(); i++)
 	{
 		similarityScore += left[i] * findSimilarity(left[i], right);
 	}
-	printSummation(similarityScore, "The total similarity score is");
+	
+	return similarityScore;
 }
 
 int main()
@@ -2133,8 +2154,19 @@ int main()
 	std::sort(left.begin(), left.end());
 	std::sort(right.begin(), right.end());
 
-	printSumOfDistances(left, right);
-	printSimilaryityScore(left, right);
+	auto start = std::chrono::high_resolution_clock::now();
+	int distances = sumOfDistances(left, right);
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double, std::milli> elapsed = end - start;
+	std::cout << "Elapsed time: " << elapsed.count() << " ms\n";
+	printSummation(distances, "The total distance is");
+
+	start = std::chrono::high_resolution_clock::now();
+	int similarityScore = similaryityScore(left, right);
+	end = std::chrono::high_resolution_clock::now();
+	elapsed = end - start;
+	std::cout << "Elapsed time: " << elapsed.count() << " ms\n";
+	printSummation(similarityScore, "The total similarity score is");
 
 	// printSumOfDistances sorted = 1879048
 	// printSimilaryityScore = 21024792
