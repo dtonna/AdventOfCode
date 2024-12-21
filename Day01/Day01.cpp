@@ -77,14 +77,8 @@ Once again consider your left and right lists. What is their similarity score?
 #include <algorithm>
 #include <numeric>
 
-static void printSummation(const std::vector<int>& number, const std::string& msg)
+static void printSummation(const int& summation, const std::string& msg)
 {
-	int summation = 0;
-	for (int i = 0; i < number.size(); i++)
-	{
-		summation += number[i];
-	}
-
 	std::cout << msg << " : " << summation << std::endl;
 }
 
@@ -99,37 +93,31 @@ static int distance(const int& a, const int& b)
 
 static int findSimilarity(const int& number, const std::vector<int>& right)
 {
-	int similarity = 0;
-	for (int j = 0; j < right.size(); j++)
-	{
-		if (number == right[j])
-		{
-			similarity++;
-		}
-		else if (number < right[j])
-		{
-			return similarity;
-		}
-	}
+	// Use upper_bound to find the first element greater than the number
+	auto upper = std::upper_bound(right.begin(), right.end(), number);
+
+	// Count the occurrences of the number
+	int similarity = std::count(right.begin(), upper, number);
+
 	return similarity;
 }
 
 static void printSumOfDistances(const std::vector<int>& left, const std::vector<int>& right)
 {
-	std::vector<int> distances;
+	int distances = 0;
 	for (int i = 0; i < left.size(); i++)
 	{
-		distances.push_back(distance(left[i], right[i]));
+		distances += distance(left[i], right[i]);
 	}
 	printSummation(distances, "The total distance is");
 }
 
 static void printSimilaryityScore(const std::vector<int>& left, const std::vector<int>& right)
 {
-	std::vector<int> similarityScore;
+	int similarityScore = 0;
 	for (int i = 0; i < left.size(); i++)
 	{
-		similarityScore.push_back(left[i] * findSimilarity(left[i], right));
+		similarityScore += left[i] * findSimilarity(left[i], right);
 	}
 	printSummation(similarityScore, "The total similarity score is");
 }
