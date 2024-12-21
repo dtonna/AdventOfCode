@@ -2,6 +2,8 @@
 //
 
 #include <iostream>
+#include <algorithm>
+#include <unordered_set>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -75,14 +77,23 @@ bool isNumberInVector(const std::vector<int>& vec, int number) {
 	return std::find(vec.begin(), vec.end(), number) != vec.end();
 }
 
-static bool isSafe(const std::vector<int> report) {
+static bool isSafe(std::vector<int>& report) {
 	/*
+	* part 1
 	7 6 4 2 1: Safe because the levels are all decreasing by 1 or 2.
 	1 2 7 8 9: Unsafe because 2 7 is an increase of 5.
 	9 7 6 2 1: Unsafe because 6 2 is a decrease of 4.
 	1 3 2 4 5: Unsafe because 1 3 is increasing but 3 2 is decreasing.
 	8 6 4 4 1: Unsafe because 4 4 is neither an increase or a decrease.
 	1 3 6 7 9: Safe because the levels are all increasing by 1, 2, or 3.
+
+	* part 2
+	7 6 4 2 1: Safe without removing any level.
+	1 2 7 8 9: Unsafe regardless of which level is removed.
+	9 7 6 2 1: Unsafe regardless of which level is removed.
+	1 3 2 4 5: Safe by removing the second level, 3.
+	8 6 4 4 1: Safe by removing the third level, 4.
+	1 3 6 7 9: Safe without removing any level.
 	}*/
 	ReportState state = ReportState::Neither;
 	std::vector<int> distances;
@@ -100,20 +111,17 @@ static bool isSafe(const std::vector<int> report) {
 		{
 			if (report[i] > report[i + 1]) {
 				if (state != ReportState::Decreasing) {
-					//std::cout << "Not Decreasing" << " at index " << i << " value " << report[i] << " " << report[i + 1] << std::endl;
 					std::cout << "Unsafe because " << report[0] << " " << report[1] << " is decreasing but " << report[i] << " " << report[i + 1] << " is increasing." << std::endl;
 					return false;
 				}
 			}
 			else if (report[i] < report[i + 1]) {
 				if (state != ReportState::Increasing) {
-					//std::cout << "Not Increasing" << " at index " << i << " value " << report[i] << " " << report[i + 1] << std::endl;
 					std::cout << "Unsafe because " << report[0] << " " << report[1] << " is increasing but " << report[i] << " " << report[i + 1] << " is decreasing." << std::endl;
 					return false;
 				}
 			}
 			else {
-				//std::cout << "Neither" << " at index " << i << " value " << report[i] << " " << report[i + 1] << std::endl;
 				std::cout << "Unsafe because " << report[i] << " " << report[i + 1] << " is neither an increase or a decrease." << std::endl;
 				return false;
 			}
@@ -123,13 +131,13 @@ static bool isSafe(const std::vector<int> report) {
 			std::cout << "Unsafe because "  << report[i] << " " << report[i + 1] << " is " << ((state == ReportState::Decreasing) ? " a " : " an ") << stateToString(state) << " of " << dist << "." << std::endl;
 			return false;
 		}
+
 		if (!isNumberInVector(distances, dist)) {
 			distances.push_back(dist);
 		}
 	}
 
 	std::string distancesStr = "";
-	//std::cout << "distances size = " << distances.size() << std::endl;
 	std::qsort(&distances[0], distances.size(), sizeof(int), [](const void* a, const void* b) -> int {
 		return (*(int*)a - *(int*)b);
 	});
@@ -159,6 +167,22 @@ static bool isSafe(const std::vector<int> report) {
 	return true;
 }
 
+static bool isSafeWithDampener(std::vector<int>& report) {
+	if (isSafe(report)) {
+		return true;
+	}
+
+	for (int i = 0; i < report.size(); i++) {
+		std::vector<int> reportCopy = report;
+		reportCopy.erase(reportCopy.begin() + i);
+		if (isSafe(reportCopy)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 int main()
 {
 	try {
@@ -175,19 +199,19 @@ int main()
 
 		//std::cout << "Data:" << std::endl;
 		//printData(data);
-		//std::vector<std::vector<int>> reports = readData(filePath.string());
-		std::vector<std::vector<int>> reports = {
+		std::vector<std::vector<int>> reports = readData(filePath.string());
+		/*std::vector<std::vector<int>> reports = {
 		{ 7, 6, 4, 2, 1 },
 		{ 1, 2, 7, 8, 9 },
 		{ 9, 7, 6, 2, 1 },
 		{ 1, 3, 2, 4, 5 },
 		{ 8, 6, 4, 4, 1 },
 		{ 1, 3, 6, 7, 9 }
-		};
+		};*/
 		int numOfSafe = 0;
 		int numOfUnsafe = 0;
 		for (int i = 0; i < reports.size(); i++) {
-			if (isSafe(reports[i])) {
+			if (isSafeWithDampener(reports[i])) {
 				numOfSafe++;
 			}
 			else {
