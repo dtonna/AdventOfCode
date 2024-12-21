@@ -77,7 +77,7 @@ Once again consider your left and right lists. What is their similarity score?
 #include <algorithm>
 #include <numeric>
 
-static void printSummation(const std::vector<int>& number, const std::string msg)
+static void printSummation(const std::vector<int>& number, const std::string& msg)
 {
 	int summation = 0;
 	for (int i = 0; i < number.size(); i++)
