@@ -78,7 +78,7 @@ Once again consider your left and right lists. What is their similarity score?
 #include <numeric>
 #include <chrono>
 
-static void printSummation(const int& summation, const std::string& msg)
+static void printSummation(const std::string& msg, const int& summation)
 {
 	std::cout << msg << " : " << summation << std::endl;
 }
@@ -2150,22 +2150,24 @@ int main()
 	std::sort(left.begin(), left.end());
 	std::sort(right.begin(), right.end());
 
+	std::cout << "Execute the sumOfDistances function\n";
 	auto start = std::chrono::high_resolution_clock::now();
 	int distances = sumOfDistances(left, right);
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double, std::milli> elapsed = end - start;
 	std::cout << "Elapsed time: " << elapsed.count() << " ms\n";
-	printSummation(distances, "The total distance is");
+	printSummation("The total distance is", distances);
 
+	std::cout << "Execute the similarityScore function\n";
 	start = std::chrono::high_resolution_clock::now();
 	int similarityScore = similaryityScore(left, right);
 	end = std::chrono::high_resolution_clock::now();
 	elapsed = end - start;
 	std::cout << "Elapsed time: " << elapsed.count() << " ms\n";
-	printSummation(similarityScore, "The total similarity score is");
-
-	// printSumOfDistances sorted = 1879048
-	// printSimilaryityScore = 21024792
+	printSummation("The total similarity score is", similarityScore);
 
 	return 0;
 }
+
+// sumOfDistances result = 1879048
+// similaryityScore result = 21024792
