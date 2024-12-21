@@ -85,11 +85,7 @@ static void printSummation(const int& summation, const std::string& msg)
 
 static int distance(const int& a, const int& b)
 {
-	if (a > b)
-	{
-		return a - b;
-	}
-	return b - a;
+	return (a > b) ? a - b : b - a;
 }
 
 static int findSimilarity(const int& number, const std::vector<int>& right)
